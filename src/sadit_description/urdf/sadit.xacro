@@ -4,6 +4,9 @@
 <xacro:include filename="$(find sadit_description)/urdf/materials.xacro" />
 <xacro:include filename="$(find sadit_description)/urdf/sadit.trans" />
 <xacro:include filename="$(find sadit_description)/urdf/sadit.gazebo" />
+<xacro:include filename="$(find sadit_description)/urdf/rplidar_s2.xacro"/>
+<xacro:include filename="$(find sadit_description)/urdf/d435_camera.xacro"/>
+<xacro:include filename="$(find sadit_description)/urdf/d435_camera2.xacro"/>
 <link name="base_link">
   <inertial>
     <origin xyz="0.30892534596658217 0.24997281793654913 0.40045242739947334" rpy="0 0 0"/>
@@ -24,6 +27,18 @@
     </geometry>
   </collision>
 </link>
+
+<!-- Lidar (RPLidar S2) -->
+<xacro:rplidar_s2 parent="base_link" name="lidar" xyz="0 0.25 0.25" rpy="0 0 3.14159"/>
+<xacro:rplidar_s2_gazebo_plugin name="lidar"/>
+
+<!-- Kamera (D435) -->
+<xacro:realsense_d435 parent="base_link" name="camera" xyz="0 0.35 0.25" rpy="0 0.25 3.14159"/>
+<xacro:d435_gazebo_plugins name="camera"/>
+
+<!-- Kamera (D435) -->
+<xacro:realsense_d435_2 parent="base_link" name="camera2" xyz="0 0.15 0.25" rpy="0 0.416666667 3.14159"/>
+<xacro:d435_gazebo_plugins_2 name="camera2"/>
 
 <link name="sol_on_teker_1">
   <inertial>
