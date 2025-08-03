@@ -1,0 +1,53 @@
+<?xml version="1.0" ?>
+<robot name="sadit" xmlns:xacro="http://www.ros.org/wiki/xacro" >
+
+  <xacro:property name="body_color" value="Gazebo/Silver" />
+  <gazebo reference="base_link">
+    <material>${body_color}</material>
+  </gazebo>
+  <gazebo reference="sol_on_teker_1">
+    <material>${body_color}</material>
+  </gazebo>
+  <gazebo reference="sol_arka_teker_1">
+    <material>${body_color}</material>
+  </gazebo>
+  <gazebo reference="sag_on_teker_1">
+    <material>${body_color}</material>
+  </gazebo>
+  <gazebo reference="sag_arka_teker_1">
+    <material>${body_color}</material>
+  </gazebo>
+
+  <ros2_control name="GazeboSystem" type="system">
+    <hardware>
+      <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+    </hardware>
+    <joint name="sol_on">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="sol_arka">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="sag_on">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="sag_arka">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+
+  <gazebo>
+    <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+      <parameters>$(find sadit_controller)/config/controllers.yaml</parameters>
+    </plugin>
+  </gazebo>
+  
+</robot>
