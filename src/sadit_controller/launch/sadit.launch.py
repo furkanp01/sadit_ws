@@ -1,77 +1,52 @@
+# sadit_controller/launch/sadit.launch.py
+
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import IncludeLaunchDescription, ExecuteProcess
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import Command, FindExecutable, PathJoinSubstitution
 from launch_ros.actions import Node
-from launch_ros.substitutions import FindPackageShare
-import os
 from ament_index_python.packages import get_package_share_directory
+import os # Bu import'un olduğundan emin ol
 
 def generate_launch_description():
-    # Robot description xacro'dan alınır
-    robot_description_content = Command(
-        [
-            PathJoinSubstitution([FindExecutable(name="xacro")]),
-            " ",
-            PathJoinSubstitution(
-                [FindPackageShare("sadit_description"), "urdf", "sadit.xacro"]
-            ),
-        ]
-    )
-    robot_description = {"robot_description": robot_description_content}
 
-    # Robot State Publisher
-    robot_state_publisher_node = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        output="both",
-        parameters=[robot_description],
-    )
-
-    # Gazebo'yu başlat
-    gazebo = IncludeLaunchDescription(
+    # --- 1. Gazebo, Dünya ve Robotu sadit_description'dan Başlat ---
+    
+    # === HATA BURADAYDI, ŞİMDİ DÜZELTİLDİ ===
+    gazebo_and_robot_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            [os.path.join(get_package_share_directory('gazebo_ros'), 'launch', 'gazebo.launch.py')]
+            os.path.join(get_package_share_directory('sadit_description'), 'launch', 'gazebo.launch.py')
         )
     )
+    # =======================================
 
-    # Robotu Gazebo'da spawn et
-    spawn_entity = Node(
-        package='gazebo_ros',
-        executable='spawn_entity.py',
-        arguments=['-topic', 'robot_description', '-entity', 'sadit'],
-        output='screen'
+    # --- 2. Kontrolcüleri Başlat ---
+    
+    spawn_joint_state_broadcaster = ExecuteProcess(
+        cmd=['ros2', 'run', 'controller_manager', 'spawner', 'joint_broad'],
+        shell=True,
+        output='screen',
+    )
+    spawn_diff_drive_controller = ExecuteProcess(
+        cmd=['ros2', 'run', 'controller_manager', 'spawner', 'diff_cont'],
+        shell=True,
+        output='screen',
     )
     
-    # Joint State Broadcaster'ı spawn et
-    joint_state_broadcaster_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["joint_broad"],
+    # --- 3. Teleop Düğümünü Başlat ---
+    
+    teleop_keyboard = ExecuteProcess(
+        cmd=[
+            'xterm', '-e', 'ros2', 'run', 'teleop_twist_keyboard', 'teleop_twist_keyboard',
+            '--ros-args', '-r', '/cmd_vel:=/diff_cont/cmd_vel_unstamped'
+        ],
+        shell=True,
+        output='screen'
     )
 
-    # Diff Drive Controller'ı spawn et
-    diff_drive_controller_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["diff_cont"],
-    )
-
-    # Klavye kontrolcüsü
-    teleop_twist_keyboard_node = Node(
-        package='teleop_twist_keyboard',
-        executable='teleop_twist_keyboard',
-        name='teleop_twist_keyboard',
-        output='screen',
-        prefix='xterm -e',
-        remappings=[('/cmd_vel', '/diff_cont/cmd_vel_unstamped')]
-    )
-
+    # --- 4. Her Şeyi LaunchDescription'a Ekle ---
     return LaunchDescription([
-        gazebo,
-        robot_state_publisher_node,
-        spawn_entity,
-        joint_state_broadcaster_spawner,
-        diff_drive_controller_spawner,
-        teleop_twist_keyboard_node
+        gazebo_and_robot_launch,
+        spawn_joint_state_broadcaster,
+        spawn_diff_drive_controller,
+        teleop_keyboard,
     ])
