@@ -1,6 +1,8 @@
-sadit_ws
+!!!!BURAYI OKUYUN!!!!
 
-!!! Lütfen açmadan önce xterm indirin
+!!! Lütfen açmadan önce xterm indirin ve modelleri .gazebo/models in içine atın
+
+modelleri buradan indirebilirsiniz -> https://drive.google.com/file/d/1IYanP5CumAVoyeA_9t1P9UtGSB2TzPCs/view?usp=sharing
 
 Sıkça sorulan sorular:
 
